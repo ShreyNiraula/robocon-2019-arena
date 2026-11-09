@@ -6,6 +6,14 @@ def keys(text: HelpText) -> list[str]:
     return [key for key, _ in text.section("CONTROLS").rows]
 
 
+def test_panel_names_the_current_mode() -> None:
+    sim = Simulation()
+    sim.set_mode(4)
+    text = help_text(sim, expanded=True)
+    assert text.title == "[4] Match"
+    assert text.lines[0] == sim.mode.description
+
+
 def test_every_mode_is_listed_by_name_and_the_current_one_is_marked() -> None:
     sim = Simulation()
     sim.set_mode(3)
@@ -23,6 +31,13 @@ def test_collapsed_panel_is_a_small_badge() -> None:
 def test_sidebar_takes_room_only_when_expanded() -> None:
     assert sidebar_width(expanded=True, scale=2.0) == 2 * sidebar_width(expanded=True, scale=1.0)
     assert sidebar_width(expanded=False, scale=2.0) == 0
+
+
+def test_driving_keys_only_shown_in_the_match() -> None:
+    sim = Simulation()
+    assert "Arrows / I J K L" not in keys(help_text(sim, expanded=True))
+    sim.set_mode(4)
+    assert "Arrows / I J K L" in keys(help_text(sim, expanded=True))
 
 
 def test_camera_keys_hidden_when_the_camera_is_scripted() -> None:

@@ -18,7 +18,7 @@ def test_starts_on_the_first_mode_with_something_visible() -> None:
     assert any(e.visible for e in sim.scene.entities())
 
 
-@pytest.mark.parametrize("key", [1, 2, 3, 5, 6])
+@pytest.mark.parametrize("key", [1, 2, 3, 4, 5, 6])
 def test_every_mode_replays_from_the_same_state(key: int) -> None:
     sim = Simulation()
     sim.set_mode(key)
@@ -86,6 +86,40 @@ def test_light_orbits_at_constant_radius() -> None:
         assert light.y == config.LIGHT_HEIGHT
 
 
+def start_match(sim: Simulation) -> None:
+    """The match starts on the first driving input."""
+    sim.set_mode(4)
+    sim.drive = glm.vec2(0.0, 1.0)
+    sim.update(1 / 60)
+    sim.drive = glm.vec2(0.0)
+
+
+def test_match_red_mr1_reaches_the_handoff_then_mr2_walks() -> None:
+    sim = Simulation()
+    start_match(sim)
+    match = sim.mode
+    spider_start = glm.vec3(sim.scene.spider_red.position)
+
+    run(sim, match.handoff_time - 0.5)
+    assert sim.scene.spider_red.position.z == pytest.approx(spider_start.z)
+
+    run(sim, 10)
+    end = match.mr1.point(match.mr1.length)
+    assert (sim.scene.robot_red.position.x, sim.scene.robot_red.position.z) == pytest.approx(
+        (end.x, end.y)
+    )
+    assert sim.scene.spider_red.position.z < spider_start.z
+
+
+def test_match_replays_after_finishing() -> None:
+    sim = Simulation()
+    sim.set_mode(4)
+    run(sim, 30)
+    sim.set_mode(4)
+    assert sim.scene.robot_red.position == config.ROBOT_RED_START
+    assert sim.scene.spider_red.position == config.SPIDER_RED_START
+
+
 def test_robot_view_rides_mr1_then_mr2() -> None:
     sim = Simulation()
     sim.set_mode(5)
@@ -121,6 +155,18 @@ def test_robot_view_ignores_free_camera_input_and_replays() -> None:
     sim.set_mode(5)
     run(sim, 1)
     assert sim.camera.position.z < -3  # back near the start zone
+
+
+def test_blue_mr1_is_driven_by_hand_and_stopped_by_walls() -> None:
+    sim = Simulation()
+    sim.set_mode(4)
+    sim.drive = glm.vec2(-1.0, 0.0)  # towards the inner lane wall at x = 4.2
+    run(sim, 5)
+    assert sim.scene.robot_blue.position.x == pytest.approx(4.2 + config.MR1_RADIUS, abs=0.01)
+    sim.drive = glm.vec2(0.0, 1.0)
+    z_before = sim.scene.robot_blue.position.z
+    run(sim, 0.5)
+    assert sim.scene.robot_blue.position.z > z_before + 0.2
 
 
 def test_overlay_is_off_by_default_and_has_walls_when_on() -> None:

@@ -10,6 +10,7 @@ from pyglm import glm
 from robocon import config
 from robocon.camera import Camera
 from robocon.collision import forest_lane_walls
+from robocon.match import Match
 from robocon.modes import (
     ArenaShowcase,
     Mode,
@@ -28,6 +29,7 @@ def default_modes() -> list[Mode]:
         ArenaShowcase(),
         RobotShowcase(),
         SpiderShowcase(),
+        Match(),
         RobotView(),
         TimeTrial(),
     ]
