@@ -80,3 +80,13 @@ def test_long_descriptions_wrap_inside_the_sidebar() -> None:
     font = ImageFont.load_default(size=BODY_SIZE)
     assert len(lines) > 1
     assert all(font.getlength(line) <= width - 2 * PADDING for line in lines)
+
+
+def test_sidebar_shrinks_text_to_fit_a_short_window() -> None:
+    sim = Simulation()
+    sim.set_mode(6)
+    for _ in range(5):
+        sim.run_log.add(15.0, 17.0, 0)
+    text = help_text(sim, expanded=True)
+    image = rasterize(text, 1.0, height=600)
+    assert image.size == (sidebar_width(True, 1.0), 600)  # fits, nothing cut off

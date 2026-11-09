@@ -18,7 +18,9 @@ from robocon.modes import (
     SpiderShowcase,
 )
 from robocon.path import mr1_route, mr2_route
+from robocon.runlog import RunLog
 from robocon.scene import LineSet, Scene
+from robocon.trial import TimeTrial
 
 
 def default_modes() -> list[Mode]:
@@ -27,12 +29,14 @@ def default_modes() -> list[Mode]:
         RobotShowcase(),
         SpiderShowcase(),
         RobotView(),
+        TimeTrial(),
     ]
 
 
 class Simulation:
-    def __init__(self, modes: Sequence[Mode] | None = None) -> None:
+    def __init__(self, modes: Sequence[Mode] | None = None, run_log: RunLog | None = None) -> None:
         self.modes = {mode.key: mode for mode in (modes or default_modes())}
+        self.run_log = run_log or RunLog()  # in memory unless the app passes a file
         self.scene = Scene.default()
         self.camera = Camera()
         self.clock = 0.0  # total running time, drives the light

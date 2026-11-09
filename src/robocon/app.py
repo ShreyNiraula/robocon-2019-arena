@@ -11,6 +11,7 @@ from pyglm import glm
 from robocon import config
 from robocon.graphics import Renderer
 from robocon.hud import Hud, help_text, sidebar_width
+from robocon.runlog import RunLog, default_log_path
 from robocon.simulation import Simulation
 
 log = logging.getLogger(__name__)
@@ -40,7 +41,7 @@ class App:
         self.renderer.load_models()
         self.hud = Hud(self.ctx)
         self.show_help = True
-        self.sim = Simulation()
+        self.sim = Simulation(run_log=RunLog(default_log_path()))
         self._looking = False
         self._last_cursor = (0.0, 0.0)
         self._title = ""

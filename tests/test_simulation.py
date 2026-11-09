@@ -18,7 +18,7 @@ def test_starts_on_the_first_mode_with_something_visible() -> None:
     assert any(e.visible for e in sim.scene.entities())
 
 
-@pytest.mark.parametrize("key", [1, 2, 3, 5])
+@pytest.mark.parametrize("key", [1, 2, 3, 5, 6])
 def test_every_mode_replays_from_the_same_state(key: int) -> None:
     sim = Simulation()
     sim.set_mode(key)
